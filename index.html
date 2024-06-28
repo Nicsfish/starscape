@@ -2,13 +2,20 @@
 <html>
     <head>
         <title>Starscape Database</title>
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
 
-        <canvas id="canvas" style="background-color: #000;">
+        <canvas id="canvas">
 
         </canvas>
-        <script>
+        <!-- <script>
+
+            
+            let systems = [];
+
+            const ctx = canvas.getContext("2d");
+
             fetch("./data/map.json")
                 .then((res) => {
                     if (!res.ok) {
@@ -17,10 +24,30 @@
                     }
                     return res.json();
                 })
-                .then((data) => 
-                      console.log(data))
+                .then((data) => {
+                        // for (let i = 0; i < data.length; i++) {
+                        //     console.log(data[i]);
+
+                        //     let system = {};
+
+                        //     system.x = data[i].x;
+                        //     system.y = data[i].y;
+                        //     system.class = "Core";
+                        //     system.draw = function(){
+                        //         ctx.fillStyle = "#00FF00";
+                        //         ctx.beginPath();
+                        //         ctx.arc(system.x,system.y,10,0,2*Math.PI);
+                        //         ctx.fill();
+                        //     }
+                        //     systems.push(system)
+                        // }
+                        // for(let i = 0; i < systems.length; i++){systems[i].draw()}
+                        console.log(data)
+                    }
+                )
                 .catch((error) => 
                        console.error("Unable to fetch data:", error));
-        </script>
+        </script> -->
+        <script type="text/javascript" src="main.js"></script>
     </body>
 </html

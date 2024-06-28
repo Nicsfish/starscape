@@ -1,0 +1,58 @@
+[
+    {
+        "name": "The Citadel",
+        "security class": "Core",
+        "x": 0,
+        "y": 0,
+        "warp": ["Shield","Concord","Triage","Bastion","Guard","Aegis"]
+    },
+    {
+        "name": "Shield",
+        "security class": "Core",
+        "x": 186,
+        "y": 37,
+        "warp": ["The Citadel","Aegis","Concord"]
+    },
+    {
+        "name": "Concord",
+        "security class": "Core",
+        "x": 123,
+        "y": -161,
+        "warp": ["The Citadel","Shield","Triage"]
+    },
+    {
+        "name": "Triage",
+        "security class": "Core",
+        "x": -53,
+        "y": -113,
+        "warp": ["The Citadel","Concord","Bastion"]
+    },
+    {
+        "name": "Bastion",
+        "security class": "Core",
+        "x": -160,
+        "y": -26,
+        "warp": ["The Citadel","Triage","Guard"]
+    },
+    {
+        "name": "Guard",
+        "security class": "Core",
+        "x": -163,
+        "y": 190,
+        "warp": ["The Citadel","Aegis","Bastion","Ibese"]
+    },
+    {
+        "name": "Aegis",
+        "security class": "Core",
+        "x": 91,
+        "y": 156,
+        "warp": ["The Citadel","Guard","Shield","Ibese"]
+    },
+    {
+        "name": "Ibese",
+        "security class": "Secure",
+        "x": -30,
+        "y": 245,
+        "warp": ["Guard","Aegis"]
+    }
+]
