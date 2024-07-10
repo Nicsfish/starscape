@@ -1,0 +1,86 @@
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+
+    font-family: monospace, monospace;
+    color: #E0E0E0;
+
+    touch-action: none;
+
+    background: #000000;
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: normal;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+::-webkit-scrollbar-track {
+    background: #00000000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #88888810;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #cfcfcf10; 
+}
+
+canvas {
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background-color: black;
+}
+
+
+button {
+    border: 0;
+    padding: 8px;
+    margin: 0;
+    background: rgba(50,50,50,0.5);
+    font: 18px monospace, monospace;
+    color: #f0f0f0;
+    border-radius: 0;
+    pointer-events: all;
+}
+
+button:hover {
+    background: rgba(60,60,60,0.5);
+}
+
+
+
+
+input[type=text] {
+    border: 0;
+    padding: 8px;
+    margin: 0;
+    border-radius: 0;
+    background: rgba(50,50,50,0.5);
+    font: 18px monospace, monospace;
+    color: #f0f0f0;
+    box-sizing: border-box;
+    pointer-events: all;
+}
+
+input[type=text]::placeholder {
+    color: #B0B0B0;
+    opacity: 1;
+  }
+input[type=text]:hover {
+    background: rgba(60,60,60,0.5);
+}
+
+input[type=text]:focus {
+    background: rgba(70,70,70,0.5);
+}

@@ -1,0 +1,124 @@
+{
+    "contains": [
+        {
+            "type": "planet",
+            "name": "The Citadel",
+            "regions": [
+                {
+                    "type": "Warp hub",
+                    "name": "Warp hub",
+                    "distance": 1496000,
+                    "apoapsis": 1496000,
+                    "periapsis": 1496000,
+                    "eccentricity": 0.00,
+                    "inclination": 68.8,
+                    "orbital period": 37,
+                    "contains": [
+                        {
+                            "type": "ST",
+                            "tags": ["Citadel", "CoreSec"],
+                            "name": "Citadel Space Station",
+                            "contains": {
+                                "docking bays": 4,
+                                "manufacturing": true,
+                                "refinery": true,
+                                "observatory": false,
+                                "repair bay": true,
+                                "marketplace": true,
+                                "general market": false,
+                                "cloning bay": true,
+                                "weapons dealer": false,
+                                "ship vendor": false,
+                                "medical facility": true,
+                                "CoreSec Field Office": {
+                                    "agents": [
+                                        {
+                                            "name": "Isabel Paras",
+                                            "tier": 0
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "Subregion",
+                    "name": "Ring",
+                    "distance": 892570,
+                    "apoapsis": 892570,
+                    "periapsis": 892570,
+                    "eccentricity": 0.00,
+                    "inclination": 8.8,
+                    "orbital period": 1027,
+                    "contains": [
+                        {
+                            "type": "AF",
+                            "tags": ["Recoverable ores"],
+                            "name": "Asteroid field"
+                        }
+                    ]
+                }
+            ],
+            "world type": "Jovian",
+            "avg temp": 228,
+            "atmosphere": "Dense",
+            "habitable": false,
+            "satellites": [],
+            "distance": 6.0,
+            "aphelion": 6.0,
+            "perihelion": 6.0,
+            "eccentricity": 0.00,
+            "inclination": 0.0,
+            "orbital period": 60180,
+            "diameter": 36000,
+            "axial tilt": 22.9,
+            "rotation period": 1333
+        },
+        {
+            "type": "planet",
+            "name": "Bantam",
+            "regions": [
+                {
+                    "type": "Warp hub",
+                    "name": "Warp hub",
+                    "distance": 0,
+                    "apoapsis": 0,
+                    "periapsis": 0,
+                    "eccentricity": 0.00,
+                    "inclination": 0.0,
+                    "orbital period": 0,
+                    "contains": [
+                        {
+                            "type": "AF",
+                            "tags": ["Recoverable ores"],
+                            "name": "Asteroid field"
+                        }
+                    ]
+                }
+            ],
+            "world type": "NA",
+            "avg temp": 0,
+            "atmosphere": "NA",
+            "habitable": false,
+            "satellites": [],
+            "distance": 0.0,
+            "aphelion": 0.0,
+            "perihelion": 0.0,
+            "eccentricity": 0.00,
+            "inclination": 0.0,
+            "orbital 0": 0,
+            "diameter": 0,
+            "axial tilt": 0,
+            "rotation period": 0
+        },
+        {
+            "type": "star",
+            "stellar class": "G",
+            "surface temp": 6000,
+            "diameter": 1800000,
+            "axial tilt": 1.1,
+            "rotation period": 1800
+        }
+    ]
+}
