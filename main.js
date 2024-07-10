@@ -260,19 +260,99 @@ resizeObserver.observe(canvas, {box: 'content-box'});
 var dragging = false;
 var last_m, new_m;
 
-document.addEventListener("mousedown",(e)=>{
+function unload() {
+  app.stop();
+  document.removeEventListener("mousedown", mousedown);
+  document.removeEventListener("mousemove", mousemove);
+  document.removeEventListener("mouseup", mouseup);
+
+  canvas.removeEventListener("wheel", mousewheel);
+  document.removeEventListener("wheel", wheel);
+
+  canvas.removeEventListener("touchstart", touchstart);
+  canvas.removeEventListener("touchmove", touchmove);
+  canvas.removeEventListener("touchend", touchend);
+
+  for (let i=0;i<systems.length;i++) {
+    systems[i].text.destroy(true);
+    container.removeChild(systems[i].graphics);
+    container.removeChild(systems[i].text);
+
+    systems[i].graphics = null;
+    systems[i].text = null;
+    systems[i].name = null;
+    systems[i].x = null;
+    systems[i].y = null;
+    systems[i].class = null;
+    systems[i].spectral = null;
+    systems[i].spice = null;
+    systems[i].hovered = null;
+    systems[i].color = null;
+    systems[i].update = null;
+
+    delete systems[i];
+  }
+
+  for (let i=0;i<warps.length;i++) {
+    container.removeChild(warps[i].graphics);
+
+    warps[i].graphics = null;
+    warps[i].start = null;
+    warps[i].end = null;
+    warps[i].update = null;
+
+    delete warps[i];
+  }
+
+  for (let i=0;i<largeLabels.length;i++) {
+    container.removeChild(largeLabels[i]);
+    largeLabels[i].destroy(true);
+
+    largeLabels[i] = null;
+  }
+
+  for (let i=0;i<smallLabels.length;i++) {
+    container.removeChild(smallLabels[i]);
+    smallLabels[i].destroy(true);
+
+    smallLabels[i] = null;
+  }
+
+  systems = null;
+  warps = null;
+  largeLabels = null;
+  smallLabels = null;
+
+  container.removeChildren();
+  app.stage.removeChild(container);
+  container.destroy(true);
+  container = null;
+
+  app.destroy(true);
+  
+  app = null
+
+  canvas = null;
+
+  PIXI = null;
+  
+  document.documentElement.innerHTML = '';
+}
+window.addEventListener('beforeunload', unload);
+
+var mousedown = (e)=>{
   dragging = e.button == 2;
 
   if (dragging) {
     last_m = MousePos(e);
     canvas.style.cursor = "move";
   }
-})
+}
+document.addEventListener("mousedown",mousedown)
 
-document.addEventListener("mousemove",(e)=>{
- 
-  if(dragging){
-    new_m = MousePos(e);;
+var mousemove = (e)=>{
+  if (dragging) {
+    new_m = MousePos(e);
 
     posX += (last_m.x - new_m.x);
     posY += (last_m.y - new_m.y);
@@ -281,27 +361,30 @@ document.addEventListener("mousemove",(e)=>{
 
     dirty = true;
   }
-});
+}
+document.addEventListener("mousemove",mousemove)
 
-document.addEventListener("mouseup",(e)=>{
+
+var mouseup = (e)=>{
   if (dragging) {
     dragging = false;
 
-
     canvas.style.cursor = "default";
   }
-})
+}
+document.addEventListener("mouseup", mouseup)
 
-document.addEventListener("wheel", (e) => {
-  if(e.ctrlKey)
-  {
-      if(e.preventDefault) e.preventDefault();
+var wheel = (e)=>{
+  if(e.ctrlKey) {
+    if(e.preventDefault) e.preventDefault();
 
-      return false;
+    return false;
   }
-}, {passive:false});
+}
 
-canvas.addEventListener("wheel", (e) => {
+document.addEventListener("wheel", wheel, {passive:false})
+
+var mousewheel = (e)=>{
   let m = mapPosition(e.offsetX,e.offsetY);
 
   let direction = e.deltaY > 0 ? 1 : -1;
@@ -312,12 +395,12 @@ canvas.addEventListener("wheel", (e) => {
   posX += p.x - e.offsetX;
   posY += p.y - e.offsetY;
 
-
   dirty = true;
-}, {passive:true});
+}
+canvas.addEventListener("wheel", mousewheel, {passive:false})
 
 var lasttouch;
-canvas.addEventListener("touchstart", (e) => {
+var touchstart = (e)=>{
   if (e.touches.length == 1) {
     dragging = true;
 
@@ -329,11 +412,11 @@ canvas.addEventListener("touchstart", (e) => {
       lasttouch = {x: (TouchPos(e.touches[0]).x + TouchPos(e.touches[1]).x) / 2, y: (TouchPos(e.touches[0]).y + TouchPos(e.touches[1]).y) / 2, distance: Math.sqrt(Math.pow(TouchPos(e.touches[0]).x - TouchPos(e.touches[1]).x, 2) + Math.pow(TouchPos(e.touches[0]).y - TouchPos(e.touches[1]).y, 2))};
     }
   }
-}, {passive:true});
+}
+canvas.addEventListener("touchstart", touchstart, {passive:true})
 
 
-canvas.addEventListener("touchmove", (e) => {
-
+var touchmove = (e)=>{
   if (e.touches.length == 1 && dragging) {
     new_m = TouchPos(e.touches[0]);
 
@@ -357,9 +440,11 @@ canvas.addEventListener("touchmove", (e) => {
 
     dirty = true;
   }
-}, {passive:true});
+}
 
-canvas.addEventListener("touchend", (e) => {
+canvas.addEventListener("touchmove", touchmove, {passive:true});
+
+var touchend = (e)=>{
   dragging = false;
 
   if (e.touches.length == 1) {
@@ -367,7 +452,9 @@ canvas.addEventListener("touchend", (e) => {
 
     last_m = TouchPos(e.touches[0]);
   }
-}, {passive:true});
+}
+
+canvas.addEventListener("touchend", touchend, {passive:true});
 
 function MousePos(e) {
   return {
