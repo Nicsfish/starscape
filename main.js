@@ -19,15 +19,38 @@ container.cullable = true;
 
 let circle = new PIXI.GraphicsContext().circle(0, 0, DOT_RADIUS * 5).fill(0xFFFFFF, 1);
 
+let highlight = new PIXI.Graphics();
+highlight.zIndex = 4;
+
+highlight.arc(0, 0, 45, 0, (2 * Math.PI) / 360 * 75);
+highlight.stroke({ width: 15, color: 0xFFFFFF });
+
+highlight.arc(0, 0, 45, (2 * Math.PI) / 360 * 90, (2 * Math.PI) / 360 * 165);
+highlight.stroke({ width: 15, color: 0xFFFFFF });
+
+highlight.arc(0, 0, 45, (2 * Math.PI) / 360 * 180, (2 * Math.PI) / 360 * 255);
+highlight.stroke({ width: 15, color: 0xFFFFFF });
+
+highlight.arc(0, 0, 45, (2 * Math.PI) / 360 * 270, (2 * Math.PI) / 360 * 345);
+highlight.stroke({ width: 15, color: 0xFFFFFF });
+highlight.scale = 0.2;
+highlight.visible = false;
+
+container.addChild(highlight);
+
+
+let border_graphics = [];
+
 (async () => {
   
-  await app.init({autoStart: false, canvas: canvas, background: '#000', resizeTo: window, resolution: window.devicePixelRatio, antialias: true });
+  await app.init({autoStart: false, canvas: canvas, background: '#000', resizeTo: window, resolution: window.devicePixelRatio, antialias: true});
   gradientTexture = await PIXI.Assets.load(`data/gradient.png`);
   app.stage.eventMode = 'none';
   app.stage.filters = null;
   app.stage.isRenderGroup = true;
   app.stage.cacheAsBitmap = true;
   app.stage.cullable = true;
+  app.stage.interactiveChildren = false;
   app.stage.addChild(container);
 
 
@@ -43,6 +66,7 @@ let circle = new PIXI.GraphicsContext().circle(0, 0, DOT_RADIUS * 5).fill(0xFFFF
   
     g.stroke({ width: WARP_WIDTH * 1.5, color: paths[j].color});
     container.addChild(g);
+    border_graphics.push(g);
   };
   
 
@@ -54,6 +78,7 @@ let circle = new PIXI.GraphicsContext().circle(0, 0, DOT_RADIUS * 5).fill(0xFFFF
   outer.lineTo(borders["outer"][0].x,-borders["outer"][0].y);
   outer.stroke({ width: WARP_WIDTH * 1.5, texture: gradientTexture, matrix: new PIXI.Matrix(400,0,0,400,600,-350).rotate(3)});
   container.addChild(outer);
+  border_graphics.push(outer);
 
   let inner = new PIXI.Graphics();
   inner.moveTo(borders["inner"][0].x,-borders["inner"][0].y);
@@ -61,8 +86,9 @@ let circle = new PIXI.GraphicsContext().circle(0, 0, DOT_RADIUS * 5).fill(0xFFFF
     inner.lineTo(borders["inner"][i].x,-borders["inner"][i].y);
   }
   inner.lineTo(borders["inner"][0].x,-borders["inner"][0].y);
-  inner.stroke({ width: WARP_WIDTH * 1.5, texture: gradientTexture, matrix: new PIXI.Matrix(200,0,0,200,200,-100).rotate(3)});
+  inner.stroke({ width: WARP_WIDTH * 1.5, texture: gradientTexture, matrix: new PIXI.Matrix(200,0,0,200,300,-100).rotate(3)});
   container.addChild(inner);
+  border_graphics.push(inner);
   
   gradientTexture.destroy();
   gradientTexture = null;
@@ -161,6 +187,7 @@ let circle = new PIXI.GraphicsContext().circle(0, 0, DOT_RADIUS * 5).fill(0xFFFF
         }
       }
     }
+    highlight.rotation += 0.02;
   });
 })();
 
@@ -173,18 +200,30 @@ fetch("./data/map.json")
       return res.json();
   })
   .then((data) => {
-    //let g = new PIXI.Graphics();
-    //g.zIndex = 2;
+    let resultList = document.getElementById("resultList");
+
     for (let i = 0; i < data.length; i++) {
       let s = new System(data[i].name, data[i].x, data[i].y, data[i]["security class"], data[i]["spectral class"], data[i]["spice color"]);
 
       systems.push(s);
-      //g.circle(s.x, -s.y, DOT_RADIUS).fill(s.color, 1);
       
       container.addChild(s.graphics);
       container.addChild(s.text);
+
+
+      let d = document.createElement("div");
+      let I = document.createElement("i");
+
+      d.addEventListener("click", searchResultClick);
+
+      I.className = "fa-solid fa-circle";
+      I.style.color = rgba(systems[i].color_string(),1);
+      I.style.marginRight = "4px";
+      
+      d.appendChild(I);
+      d.appendChild(document.createTextNode(data[i].name));
+      resultList.appendChild(d);
     }
-    //container.addChild(g);
     circle = null;
     for (let i = 0; i < data.length; i++) {
       document.getElementById("searchResultText").innerText = "Systems: (" + i + ")";
@@ -203,7 +242,7 @@ fetch("./data/map.json")
     app.start();
   }
   
-).catch((error) => console.error("Unable to fetch data:", error));
+).catch((error) => console.error("Unable to fetch data:", error, error.stack));
 
 
 
@@ -252,7 +291,17 @@ function resize(entries) {
     displayHeight = Math.round(height * dpr);
   }
 
+  let m = mapPosition(app.screen.width/2, app.screen.height/2);
+
+
   builtInScale = (displayWidth * displayHeight + 5000000 ) / 10000000;
+
+  let p = getPosition(m.x,m.y);
+
+  posX += p.x - app.screen.width / 2;
+  posY += p.y - app.screen.height / 2;
+
+  dirty = true;
 }
 const resizeObserver = new ResizeObserver(resize);
 resizeObserver.observe(canvas, {box: 'content-box'});
@@ -262,6 +311,7 @@ var last_m, new_m;
 
 function unload() {
   app.stop();
+  app.ticker.stop();
   document.removeEventListener("mousedown", mousedown);
   document.removeEventListener("mousemove", mousemove);
   document.removeEventListener("mouseup", mouseup);
@@ -273,33 +323,67 @@ function unload() {
   canvas.removeEventListener("touchmove", touchmove);
   canvas.removeEventListener("touchend", touchend);
 
+  canvas.removeEventListener("click", click);
+
+  document.getElementById("searchResultButton").removeEventListener("click", searchResultButtonFunction);
+
+  document.getElementById("searchSystems").removeEventListener("input", searchSystems);
+
+  searchSystems = null;
+
+  for (let i=0;i<document.getElementById("resultList").children.length;i++) {
+    document.getElementById("resultList").children[i].style= null;
+    document.getElementById("resultList").children[i].removeEventListener("click", searchResultClick);
+
+
+    document.getElementById("resultList").children[i].children[0].remove();
+    document.getElementById("resultList").children[i].innerText = null;
+
+  
+
+    document.getElementById("resultList").children[i].remove();
+  }
+
+  resizeObserver.disconnect()
+  
   for (let i=0;i<systems.length;i++) {
     systems[i].text.destroy(true);
+    try {
+      systems[i].graphics.destroy(true);
+    } catch (e) {}
     container.removeChild(systems[i].graphics);
-    container.removeChild(systems[i].text);
-
     systems[i].graphics = null;
+    container.removeChild(systems[i].text);
     systems[i].text = null;
-    systems[i].name = null;
-    systems[i].x = null;
-    systems[i].y = null;
-    systems[i].class = null;
-    systems[i].spectral = null;
-    systems[i].spice = null;
-    systems[i].hovered = null;
-    systems[i].color = null;
-    systems[i].update = null;
+
+    delete systems[i].graphics;
+    delete systems[i].text;
+    delete systems[i].name;
+    delete systems[i].x;
+    delete systems[i].y;
+    delete systems[i].class;
+    delete systems[i].spectral;
+    delete systems[i].spice;
+    delete systems[i].hovered;
+    delete systems[i].focused;
+    delete systems[i].color;
+    delete systems[i].color_string;
+    delete systems[i].update;
 
     delete systems[i];
   }
 
   for (let i=0;i<warps.length;i++) {
-    container.removeChild(warps[i].graphics);
-
+    try {
+      warps[i].graphics.destroy(true);
+    } catch (e) {}
     warps[i].graphics = null;
-    warps[i].start = null;
-    warps[i].end = null;
-    warps[i].update = null;
+    
+    container.removeChild(warps[i].graphics);
+    delete warps[i].graphics;
+    delete warps[i].start;
+    delete warps[i].end;
+    delete warps[i].update;
 
     delete warps[i];
   }
@@ -318,24 +402,54 @@ function unload() {
     smallLabels[i] = null;
   }
 
-  systems = null;
-  warps = null;
-  largeLabels = null;
-  smallLabels = null;
+  for (let i=0;i<border_graphics.length;i++) {
+    container.removeChild(border_graphics[i]);
+    try {
+      border_graphics[i].graphics.destroy(true);
+    } catch (e) {}
 
-  container.removeChildren();
+    border_graphics[i] = null;
+  }
+  border_graphics = null;
+
+  for (let i=0;i<container.children.length;i++) {
+    container.removeChild(container.children[i]);
+    try {
+      container.children[i].destroy(true);
+    } catch (e) {}
+
+    container.children[i] = null;
+  }
+
+  container.removeChild(highlight);
+  try {
+    highlight.destroy(true);
+  } catch (e) {}
+  highlight = null;
+
   app.stage.removeChild(container);
   container.destroy(true);
   container = null;
 
+  Warp = null;
+  System = null;
+  systems = null;
+  warps = null;
+  largeLabels = null;
+  smallLabels = null;
+ 
   app.destroy(true);
+  app = null;
   
-  app = null
-
   canvas = null;
 
   PIXI = null;
   
+  Object.keys(window).map(prop => {
+    try {
+      delete window[prop]
+    } catch (e) {}
+  });
   document.documentElement.innerHTML = '';
 }
 window.addEventListener('beforeunload', unload);
@@ -360,6 +474,39 @@ var mousemove = (e)=>{
     last_m = {x: new_m.x, y: new_m.y};
 
     dirty = true;
+  } else {
+    canvas.style.cursor = "default";
+    let m = MousePos(e);
+
+    for (let i=0;i<systems.length;i++) {
+      let p = getPosition(systems[i].x, systems[i].y);
+      if (Math.sqrt((m.x - p.x) ** 2 + (m.y - p.y) ** 2) < DOT_RADIUS*builtInScale*scale) {
+        canvas.style.cursor = "pointer";
+        if (!systems[i].hovered && !systems[i].focused) {
+          systems[i].hovered = true;
+          systems[i].graphics.scale = 0.2 * 1.1;
+          systems[i].graphics.tint = systems[i].color();
+
+          for (let j=0;j<warps.length;j++) {
+            if (warps[j].start == systems[i] || warps[j].end == systems[i]) {
+              warps[j].graphics.alpha += 0.11;
+            }
+          }
+        }
+      } else {
+        if (systems[i].hovered && !systems[i].focused) {
+          systems[i].hovered = false;
+          systems[i].graphics.scale = 0.2;
+          systems[i].graphics.tint = systems[i].color();
+
+          for (let j=0;j<warps.length;j++) {
+            if (warps[j].start == systems[i] || warps[j].end == systems[i]) {
+              warps[j].graphics.alpha -= 0.11;
+            }
+          }
+        }
+      }
+    }
   }
 }
 document.addEventListener("mousemove",mousemove)
@@ -382,7 +529,7 @@ var wheel = (e)=>{
   }
 }
 
-document.addEventListener("wheel", wheel, {passive:false})
+document.addEventListener("wheel", wheel, {passive:true})
 
 var mousewheel = (e)=>{
   let m = mapPosition(e.offsetX,e.offsetY);
@@ -397,7 +544,7 @@ var mousewheel = (e)=>{
 
   dirty = true;
 }
-canvas.addEventListener("wheel", mousewheel, {passive:false})
+canvas.addEventListener("wheel", mousewheel, {passive:true})
 
 var lasttouch;
 var touchstart = (e)=>{
@@ -456,6 +603,152 @@ var touchend = (e)=>{
 
 canvas.addEventListener("touchend", touchend, {passive:true});
 
+
+var searchResultButtonFunction = function() {
+  let content = document.getElementById("searchResult");
+  if (content.style.maxHeight != "0px"){
+      content.style.maxHeight = "0";
+      document.getElementById("searchResultIcon").classList.remove("fa-chevron-up");
+      document.getElementById("searchResultIcon").classList.add("fa-chevron-down");
+  } else {
+      content.style.maxHeight = "22%";
+      document.getElementById("searchResultIcon").classList.remove("fa-chevron-down");
+      document.getElementById("searchResultIcon").classList.add("fa-chevron-up");
+  } 
+}
+
+document.getElementById("searchResultButton").addEventListener("click", searchResultButtonFunction);
+
+
+var click = (e)=>{
+  let m = MousePos(e);
+
+  for (let i=0;i<systems.length;i++) {
+    let p = getPosition(systems[i].x, systems[i].y);
+    if (Math.sqrt((m.x - p.x) ** 2 + (m.y - p.y) ** 2) < DOT_RADIUS*builtInScale*scale) {
+      systems[i].focused = true;
+      systems[i].hovered = false;
+      systems[i].graphics.scale = 0.2;
+      systems[i].graphics.tint = systems[i].color();
+
+      highlight.x = systems[i].x;
+      highlight.y = -systems[i].y;
+
+      highlight.visible = true;
+
+      for (let j=0;j<warps.length;j++) {
+        if (warps[j].start == systems[i] || warps[j].end == systems[i]) {
+          warps[j].graphics.alpha = 0.4;
+          warps[j].graphics.tint = 0xFFFF00;
+        }
+      }
+
+      for (let j=0;j<systems.length;j++) {
+        if (systems[j] != systems[i]) {
+          if (systems[j].focused) {
+            systems[j].focused = false;         
+          }
+        }
+      }
+
+      for (let k=0;k<warps.length;k++) {
+        if (warps[k].start != systems[i] && warps[k].end != systems[i]) {
+          warps[k].graphics.alpha = 0.2;
+          warps[k].graphics.tint = 0xFFFFFF;
+        }
+      }
+
+      posX = systems[i].x * scale * builtInScale;
+      posY = -systems[i].y  * scale * builtInScale;
+
+      dirty = true;
+    }
+  }
+}
+canvas.addEventListener("click", click);
+
+
+function searchResultClick(e) {
+  for (let i=0;i<systems.length;i++) {
+    if (this.innerText == systems[i].name) {
+      systems[i].focused = true;
+      systems[i].hovered = false;
+      systems[i].graphics.scale = 0.2;
+      systems[i].graphics.tint = systems[i].color();
+
+      highlight.x = systems[i].x;
+      highlight.y = -systems[i].y;
+
+      highlight.visible = true;
+
+      for (let j=0;j<warps.length;j++) {
+        if (warps[j].start == systems[i] || warps[j].end == systems[i]) {
+          warps[j].graphics.alpha = 0.4;
+          warps[j].graphics.tint = 0xFFFF00;
+        }
+      }
+
+      for (let j=0;j<systems.length;j++) {
+        if (systems[j] != systems[i]) {
+          if (systems[j].focused) {
+            systems[j].focused = false;         
+          }
+        }
+      }
+
+      for (let k=0;k<warps.length;k++) {
+        if (warps[k].start != systems[i] && warps[k].end != systems[i]) {
+          warps[k].graphics.alpha = 0.2;
+          warps[k].graphics.tint = 0xFFFFFF;
+        }
+      }
+
+      posX = systems[i].x * scale * builtInScale;
+      posY = -systems[i].y  * scale * builtInScale;
+
+      dirty = true;
+    }
+  }
+}
+
+var searchSystems = (e)=>{
+  let search = document.getElementById("searchSystems").value;
+
+  if (search != "" && document.getElementById("searchResult").style.maxHeight != "22%"){
+    document.getElementById("searchResult").style.maxHeight = "22%";
+    document.getElementById("searchResultIcon").classList.remove("fa-chevron-down");
+    document.getElementById("searchResultIcon").classList.add("fa-chevron-up");
+  }
+  if (search == "") {
+    document.getElementById("searchResult").style.maxHeight = "0";
+    document.getElementById("searchResultIcon").classList.remove("fa-chevron-up");
+    document.getElementById("searchResultIcon").classList.add("fa-chevron-down");
+
+    for (let i=0;i<systems.length;i++) {
+      document.getElementById("resultList").children[i].style.display = "block";
+      systems[i].graphics.alpha = 1;
+    }
+
+    document.getElementById("searchResultText").innerText = "Systems: (" + systems.length + ")";
+  } else {
+    let count = 0;
+    for (let i=0;i<systems.length;i++) {
+      if (systems[i].name.toLowerCase().includes(search.toLowerCase())) {
+        systems[i].graphics.alpha = 1;
+        document.getElementById("resultList").children[i].style.display = "block";
+        count++;
+      } else {
+        systems[i].graphics.alpha = 0.1;
+        document.getElementById("resultList").children[i].style.display = "none";
+      }
+    }
+    document.getElementById("searchResultText").innerText = "Systems: (" + count + ")";
+  }
+  
+}
+document.getElementById("searchSystems").addEventListener("input", searchSystems);
+
+
 function MousePos(e) {
   return {
     x: e.clientX,
@@ -470,4 +763,3 @@ function TouchPos(touch) {
     y: touch.clientY,
   }
 }
-

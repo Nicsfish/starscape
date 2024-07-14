@@ -50,6 +50,7 @@ function bounds() {
   BOTTOM_Y = mapPosition(0,app.screen.height).y;
 }
 
+
 class System {
   constructor(name, x, y, c, s, sp) {
     this.name = name;
@@ -58,7 +59,10 @@ class System {
     this.class = c;
     this.spectral = s;
     this.spice = sp;
+
+
     this.hovered = false;
+    this.focused = false;
 
     this.graphics = new PIXI.Graphics(circle);
     this.graphics.zIndex = 2;
@@ -101,6 +105,25 @@ class System {
     return (color[0] << 16) | (color[1] << 8) | color[2];
   }
 
+  color_string() {
+    let color;
+    if (this.hovered) {
+      if (this.class == "Core") color = CORE_HOVER_COLOR;
+      if (this.class == "Secure") color = SECURE_HOVER_COLOR;
+      if (this.class == "Unsecure") color = UNSECURE_HOVER_COLOR;
+      if (this.class == "Contested") color = CONTESTED_HOVER_COLOR;
+      if (this.class == "Wild") color = WILD_HOVER_COLOR;
+    } else {
+      if (this.class == "Core") color = CORE_COLOR;
+      if (this.class == "Secure") color = SECURE_COLOR;
+      if (this.class == "Unsecure") color = UNSECURE_COLOR;
+      if (this.class == "Contested") color = CONTESTED_COLOR;
+      if (this.class == "Wild") color = WILD_COLOR;
+    }
+    
+    return color;
+  }
+
   update() {
     if (this.x - 3 * this.name.length <= RIGHT_X && this.x + 3 * this.name.length >= LEFT_X && this.y - 15 <= TOP_Y && this.y - 5 >= BOTTOM_Y) {
       this.text.visible = true;
@@ -134,37 +157,41 @@ class Warp {
     this.end = end;
 
     this.graphics = new PIXI.Graphics();
-    this.graphics.alpha = 0.3;
+    this.graphics.alpha = 0.2;
     this.graphics.zIndex = 1;
 
-    if (this.start.color() != this.end.color() || this.start.hovered || this.end.hovered) {
-      const gradientFill = new PIXI.FillGradient(this.start.x,-this.start.y,
-        this.end.x,-this.end.y);
+    this.graphics.moveTo(this.start.x,-this.start.y);
+    this.graphics.lineTo(this.end.x,-this.end.y);
+    this.graphics.stroke({width: WARP_WIDTH, color: 0x888888});
 
-      gradientFill.addColorStop(0, this.start.color());
-      gradientFill.addColorStop(1, this.end.color());
+    // if (this.start.color() != this.end.color() || this.start.hovered || this.end.hovered) {
+    //   gradientFill.x0 = this.start.x;
+    //   gradientFill.y0 = -this.start.y;
+    //   gradientFill.x1 = this.end.x;
+    //   gradientFill.y1 = -this.end.y
 
-      this.graphics.visible = true;
+    //   gradientFill.gradientStops = [];
 
-      this.graphics.clear();
+    //   gradientFill.addColorStop(0, this.start.color());
+    //   gradientFill.addColorStop(1, this.end.color());
+
+    //   this.graphics.moveTo(this.start.x,-this.start.y);
+
+    //   this.graphics.lineTo(this.end.x,-this.end.y);
       
+    //   try {
+    //     this.graphics.stroke({width: WARP_WIDTH, color: 0xFFFFFF});
+    //   } catch (error) {
+    //     console.error(error);
+    //   }    
+    // } else {
 
-      this.graphics.moveTo(this.start.x,-this.start.y);
+    //   this.graphics.moveTo(this.start.x,-this.start.y);
 
-      this.graphics.lineTo(this.end.x,-this.end.y);
+    //   this.graphics.lineTo(this.end.x,-this.end.y);
       
-      this.graphics.stroke({ width: WARP_WIDTH, fill: gradientFill });
-    } else {
-      this.graphics.visible = true;
-
-      this.graphics.clear();
-
-      this.graphics.moveTo(this.start.x,-this.start.y);
-
-      this.graphics.lineTo(this.end.x,-this.end.y);
-      
-      this.graphics.stroke({ width: WARP_WIDTH, color: this.start.color() });
-    }
+    //   this.graphics.stroke({width: WARP_WIDTH, color: this.start.color()});
+    // }
   }
 
   update() {
@@ -186,12 +213,6 @@ class Warp {
 function getPosition(x,y) {
   return {x:(x*builtInScale*scale+app.screen.width/2) - posX,y:(-y*builtInScale*scale+app.screen.height/2) - posY}
 }
-
-function getPositionhighResCanvas(x,y) {
-  return {x:(x*builtInScale*scale*devicePixelRatio+highResCanvas.width/2) - posX*devicePixelRatio,y:(-y*builtInScale*scale*devicePixelRatio+highResCanvas.height/2) - posY*devicePixelRatio}
-}
-
-
 
 function mapPosition(canvasX,canvasY) {
   let x = (canvasX + posX - app.screen.width / 2) / (builtInScale * scale);

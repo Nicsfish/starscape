@@ -23,51 +23,28 @@
         bottom:0; font-family: monospace, monospace; color: white; transform-origin: 50% 50%; pointer-events: none;">
 
         </div>
-
-        <script type="text/javascript" src="helper.js"></script>
-        <script type="text/javascript" src="main.js"></script>
-
-        <div style="position:absolute;
-        left:0; right:0;
-        top:0; bottom: 0; margin: 8px; display: flex;
-        align-items: stretch; flex-direction: column;pointer-events: none;">
-            <div style="display: flex; align-items: stretch; flex-direction: row; margin-bottom: 8px;">
-                <input style="flex-grow: 1;" type="text" id="searchSystems" placeholder="Search by name..." name="searchSystems"/>
-                <button><i class="fa-solid fa-caret-down"></i></button>
-                <button style="margin-left: 8px;"><i class="fa-solid fa-gear fa-fw"></i></button>
+        <div style="position:absolute; left:0; right:0; top:0; bottom: 0; margin: 8px; display: flex; align-items: stretch; flex-direction: column; pointer-events: none;">
+            <div style="margin-bottom: 8px; display: inline-flex; margin-right: 8px;">
+                <div style="flex-grow: 1; max-width: 600px; display: inline-flex; ">
+                    <input style="flex-grow: 1;" type="text" id="searchSystems" placeholder="Search by name..." name="searchSystems"/>
+                    <!-- <button><i class="fa-solid fa-caret-down"></i></button> -->
+                </div>
+                
+                <!-- <button style="margin-left: auto;"><i class="fa-solid fa-gear fa-fw"></i></button> -->
             </div>
             
-            <button id="searchResultButton" type="button" style="cursor: pointer; width: 100%; text-align: left;"><span id="searchResultText">Systems: (...)</span><i class="fa-solid fa-chevron-down" id="searchResultIcon" style="float: right;"></i></button>
-            <div id="searchResult" style="margin-bottom: 8px; height: 22%; background: rgba(50,50,50,0.5); max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.2s ease-out;">
-                <div style="height: 100%; padding: 8px; overflow: auto; pointer-events: all;">
-                    <p>...</p>
+            <button id="searchResultButton" type="button" style="cursor: pointer; max-width: 600px; width: 100%; text-align: left;"><span id="searchResultText">Systems: (...)</span><i class="fa-solid fa-chevron-down" id="searchResultIcon" style="float: right;"></i></button>
+            <div id="searchResult" style="margin-bottom: 8px; max-width: 600px; height: 22%; background: rgba(50,50,50,0.5); max-height: 0; overflow: auto; transition: max-height 0.2s ease-out; pointer-events: all;">
+                <div style="pointer-events: all;" id="resultList">
                 </div>
             </div>
-
-            <script>
-                "use strict";
-                document.getElementById("searchResultButton").addEventListener("click", function() {
-
-                    var content = document.getElementById("searchResult");
-                    if (content.style.maxHeight != "0px"){
-                        content.style.maxHeight = "0";
-                        document.getElementById("searchResultIcon").classList.remove("fa-chevron-up");
-                        document.getElementById("searchResultIcon").classList.add("fa-chevron-down");
-                    } else {
-                        content.style.maxHeight = "22%";
-                        document.getElementById("searchResultIcon").classList.remove("fa-chevron-down");
-                        document.getElementById("searchResultIcon").classList.add("fa-chevron-up");
-                        
-                    } 
-                });
-            </script>
 
             <div style="flex-grow: 1; position: relative;">
                 <div style="position: absolute; left: 15%; right: 15%; top: 15%; bottom: 15%; pointer-events: all; background: rgba(50,50,50,0.5); display: none;"></div>
             </div>
         </div>
+        <script type="text/javascript" src="helper.js"></script>
+        <script type="text/javascript" src="main.js"></script>
 
     
     </body>

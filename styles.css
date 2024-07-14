@@ -25,12 +25,12 @@ h3 {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #88888810;
+    background: #aaaaaa20;
     border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #cfcfcf10; 
+    background: #dddddd20; 
 }
 
 canvas {
@@ -83,4 +83,13 @@ input[type=text]:hover {
 
 input[type=text]:focus {
     background: rgba(70,70,70,0.5);
+}
+
+#searchResult div div {
+    cursor: pointer;
+    padding: 4px 8px 4px 8px;
+}
+
+#searchResult div div:hover {
+    background: rgba(70,70,70,0.15);
 }
